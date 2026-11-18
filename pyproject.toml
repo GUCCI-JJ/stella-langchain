@@ -1,0 +1,27 @@
+[project]
+name = "stella-langchain"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "chromadb>=1.5.9",
+    "docx2txt>=0.9",
+    "fastapi>=0.162.0",
+    "langchain>=1.4.7",
+    "langchain-chroma>=1.1.0",
+    "langchain-community>=0.4.2",
+    "langchain-deepseek>=1.1.1",
+    "langchain-huggingface>=1.2.3",
+    "langchain-openai>=1.7.3",
+    "langchain-postgres>=0.0.19",
+    "markdown>=3.11.2",
+    "openai>=3.42.1",
+    "pgvector>=0.3.6",
+    "psycopg2-binary>=2.9.13",
+    "psycopg[binary]>=3.3.8",
+    "pydantic>=2.14.2",
+    "pypdf>=6.21.4",
+    "python-dotenv>=1.2.4",
+    "python-multipart>=0.0.33",
+    "sentence-transformers>=6.2.0",
+    "uvicorn>=0.54.0",
+]
