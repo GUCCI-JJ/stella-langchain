@@ -2,8 +2,6 @@ import os
 import pickle
 
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
-from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_openai import OpenAIEmbeddings
 from langchain_postgres import PGVector
 from langchain_text_splitters import RecursiveCharacterTextSplitter
