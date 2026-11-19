@@ -124,19 +124,22 @@ const App = () => {
     const assistanceId = `a_${Date.now()}`;
 
     // 3 发起流式请求
-    const res = await fetch("http://localhost:8000/api/chat/stream", {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sessionId: SESSION_ID,
-        content: userInput,
-        uploaded_doc: uploadItems.map((item) => ({
-          doc_id: item.doc_id,
-          filename: item.filename,
-          original_filename: item.original_filename,
-        })),
-      }),
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/chat/stream`,
+      {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: SESSION_ID,
+          content: userInput,
+          uploaded_doc: uploadItems.map((item) => ({
+            doc_id: item.doc_id,
+            filename: item.filename,
+            original_filename: item.original_filename,
+          })),
+        }),
+      },
+    );
 
     const reader = res.body!.getReader();
     const decoder = new TextDecoder();
