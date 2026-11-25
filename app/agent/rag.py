@@ -5,6 +5,7 @@ from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
 from langchain_openai import OpenAIEmbeddings
 from langchain_postgres import PGVector
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from sqlalchemy import create_engine
 
 from app.config import OPENAI_API_KEY, QWEN_API_KEY, QWEN_BASE_URL, DB_CONFIG, EMBEDDING_MODEL
 
@@ -27,12 +28,26 @@ embeddings = OpenAIEmbeddings(
 
 CONNECTION_STRING = f"postgresql+psycopg://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['dbname']}?sslmode=require"
 
+engine = create_engine(
+    CONNECTION_STRING,
+    pool_pre_ping=True,
+    pool_recycle=180,
+    pool_size=5,
+    max_overflow=10,
+    pool_timeout=30,
+)
+
 vs = PGVector(
     embeddings=embeddings,
-    connection=CONNECTION_STRING,
+    connection=engine,
     collection_name='product_docs',
     use_jsonb=True,
 )
+
+
+def reset_vector_engine():
+    vs.session_maker.remove()
+    engine.dispose()
 
 
 def load_file(path: str):
