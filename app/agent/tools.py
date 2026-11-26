@@ -8,7 +8,7 @@ from fastapi import UploadFile, File
 from langchain_core.tools import tool
 from sqlalchemy.exc import OperationalError
 
-from app.agent.rag import get_retriever, ingest, reset_vector_engine
+from app.agent.rag import get_retriever, ingest
 from app.db.crud import save_document
 
 logger = logging.getLogger(__name__)
@@ -33,6 +33,6 @@ def search_product_docs(query: str) -> str:
             )
             if attempt == 0 and is_stale_connection:
                 logger.warning("向量库连接已失效，正在重建连接池并重试一次")
-                reset_vector_engine()
+                # reset_vector_engine()
                 continue
             raise
