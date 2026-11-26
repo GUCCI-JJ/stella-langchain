@@ -38,7 +38,7 @@ async def upload(files: List[UploadFile] = File(...)):
         with open(path, 'wb') as f:
             shutil.copyfileobj(file.file, f)
 
-        # 4 存入数据库
+        # 4 存入chroma
         doc_id = save_document(
             filename=final_name,
             original_filename=file.filename or "",

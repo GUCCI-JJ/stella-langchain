@@ -1,5 +1,6 @@
 from psycopg2.extras import RealDictCursor
 
+from app.agent.rag import chroma_client
 from app.db.connection import get_conn
 
 
@@ -121,18 +122,6 @@ def delete_product_doc(doc_id: int):
 
 # 删除langchain_pg_embedding中文件向量
 def delete_product_doc_embeddings(doc_id: int):
-    conn = get_conn()
-    cur = conn.cursor()
-    cur.execute(
-        """
-        delete
-        from langchain_pg_embedding
-        where cmetadata ->>'doc_id'=%s
-        """,
-        (str(doc_id),)
-    )
-    deleted = cur.rowcount
-    conn.commit()
-    cur.close()
-    conn.close()
-    return deleted
+    collection = chroma_client.get_or_create_collection("product_docs")
+    collection.delete(where={"doc_id": doc_id})
+    return True

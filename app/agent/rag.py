@@ -1,13 +1,15 @@
 import os
 import pickle
 
+import chromadb
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
 from langchain_openai import OpenAIEmbeddings
 from langchain_postgres import PGVector
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_chroma import Chroma
 from sqlalchemy import create_engine
 
-from app.config import OPENAI_API_KEY, QWEN_API_KEY, QWEN_BASE_URL, DB_CONFIG, EMBEDDING_MODEL
+from app.config import OPENAI_API_KEY, QWEN_API_KEY, QWEN_BASE_URL, DB_CONFIG, EMBEDDING_MODEL, CHROMA_HOST, CHROMA_PORT
 
 PERSIS_DIR = 'chroma_db'
 
@@ -26,28 +28,40 @@ embeddings = OpenAIEmbeddings(
     check_embedding_ctx_length=False,  # 关键：禁止客户端 token 化
 )
 
-CONNECTION_STRING = f"postgresql+psycopg://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['dbname']}?sslmode=require"
-
-engine = create_engine(
-    CONNECTION_STRING,
-    pool_pre_ping=True,
-    pool_recycle=180,
-    pool_size=5,
-    max_overflow=10,
-    pool_timeout=30,
+chroma_client = chromadb.HttpClient(
+    host=CHROMA_HOST,
+    port=CHROMA_PORT
 )
 
-vs = PGVector(
-    embeddings=embeddings,
-    connection=engine,
+vs = Chroma(
+    client=chroma_client,
     collection_name='product_docs',
-    use_jsonb=True,
+    embedding_function=embeddings,
 )
 
 
-def reset_vector_engine():
-    vs.session_maker.remove()
-    engine.dispose()
+# CONNECTION_STRING = f"postgresql+psycopg://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['dbname']}?sslmode=require"
+#
+# engine = create_engine(
+#     CONNECTION_STRING,
+#     pool_pre_ping=True,
+#     pool_recycle=180,
+#     pool_size=5,
+#     max_overflow=10,
+#     pool_timeout=30,
+# )
+#
+# vs = PGVector(
+#     embeddings=embeddings,
+#     connection=engine,
+#     collection_name='product_docs',
+#     use_jsonb=True,
+# )
+
+
+# def reset_vector_engine():
+#     vs.session_maker.remove()
+#     engine.dispose()
 
 
 def load_file(path: str):
@@ -73,12 +87,11 @@ def ingest(path: str, doc_id: int):
     # 给每个chunk加上doc_id
     for chunk in chunks:
         chunk.metadata['doc_id'] = doc_id
-    PGVector.from_documents(
+    Chroma.from_documents(
         documents=chunks,
         embedding=embeddings,
-        connection=CONNECTION_STRING,
         collection_name='product_docs',
-        use_jsonb=True,
+        client=chroma_client
     )
     return len(chunks)
 

@@ -14,7 +14,8 @@ dist-ssr
 *.local
 
 data
-__pycache__
+__pycache__/
+chroma-data
 
 # Editor directories and files
 .vscode/*
@@ -28,4 +29,5 @@ __pycache__
 *.sw?
 
 .env
+.env.production
 .env.development
